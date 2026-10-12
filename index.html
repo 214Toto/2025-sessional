@@ -1,0 +1,1258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2024/2025 Biochemistry Sessional – Interactive Exam</title>
+    <style>
+        :root {
+            --primary: #1a6b6b;
+            --accent: #2ea8a0;
+            --dark: #0f2a2a;
+            --light: #f4f8f7;
+            --radius: 12px;
+            --shadow: 0 4px 14px rgba(0, 30, 30, 0.08);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+            background: #edf3f2;
+            color: var(--dark);
+            min-height: 100vh;
+            padding-top: 72px;
+        }
+        header {
+            position: fixed; top: 0; left: 0; width: 100%; z-index: 1000;
+            background: linear-gradient(145deg, var(--primary), var(--dark));
+            color: #fff; padding: 0.6rem 0;
+            box-shadow: 0 4px 18px rgba(0, 20, 20, 0.25);
+        }
+        .header-inner {
+            max-width: 1000px; margin: 0 auto; padding: 0 1.5rem;
+            display: flex; align-items: center; justify-content: space-between;
+            flex-wrap: wrap; gap: 0.3rem;
+        }
+        .logo { display: flex; align-items: center; gap: 0.6rem; }
+        .logo i { font-size: 1.5rem; color: #8dd9d4; }
+        .logo h1 { font-size: 1.15rem; font-weight: 700; }
+        .badge {
+            background: rgba(255, 255, 255, 0.12);
+            padding: 0.2rem 1rem; border-radius: 40px;
+            font-size: 0.7rem; font-weight: 600; text-transform: uppercase;
+            color: #b3e6e0;
+        }
+        .container { max-width: 920px; margin: 0 auto; padding: 0 1.2rem 2.5rem; }
+        .tab-bar { display: flex; gap: 0.5rem; margin: 0.5rem 0 1.5rem 0; flex-wrap: wrap; }
+        .tab-btn {
+            background: #dce8e8; border: none; padding: 0.5rem 1.8rem;
+            border-radius: 40px; font-weight: 600; font-size: 0.95rem;
+            color: var(--dark); cursor: pointer; transition: 0.2s;
+        }
+        .tab-btn:hover { background: #c0d6d6; }
+        .tab-btn.active {
+            background: var(--primary); color: #fff;
+            box-shadow: 0 2px 10px rgba(26, 107, 107, 0.25);
+        }
+        .tab-panel { display: block; }
+        .tab-panel.hidden { display: none; }
+        .section-title {
+            font-size: 1.25rem; font-weight: 700; color: var(--primary);
+            margin: 0 0 0.8rem 0; padding-bottom: 0.4rem;
+            border-bottom: 3px solid rgba(26, 107, 107, 0.18);
+            display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap;
+        }
+        .section-title .count {
+            font-size: 0.7rem; font-weight: 600; background: var(--primary);
+            color: #fff; border-radius: 40px; padding: 0 0.7rem; line-height: 1.7;
+        }
+        .section-subtitle { color: #4f6e6e; font-size: 0.9rem; margin-bottom: 1rem; }
+        .question {
+            background: #ffffff; border-radius: var(--radius);
+            padding: 1.1rem 1.2rem 0.2rem 1.2rem; margin-bottom: 1rem;
+            box-shadow: var(--shadow); border: 1px solid rgba(26, 107, 107, 0.05);
+        }
+        .question .q-badge {
+            display: inline-block; background: var(--primary); color: #fff;
+            border-radius: 40px; padding: 0 0.65rem; font-size: 0.7rem;
+            font-weight: 700; line-height: 1.6; margin-right: 0.4rem;
+        }
+        .question p { font-weight: 600; font-size: 0.97rem; margin-bottom: 0.4rem; color: var(--dark); }
+        .options label {
+            display: block; background: #fafcfc; border: 1px solid #dde8e8;
+            border-radius: 7px; padding: 0.4rem 0.85rem; margin-top: 0.4rem;
+            cursor: pointer; transition: all 0.15s; font-weight: 450; font-size: 0.92rem;
+        }
+        .options label:hover { background: #e8f5f4; border-color: var(--accent); }
+        .options input[type="radio"] { margin-right: 0.5rem; accent-color: var(--primary); }
+        .question-feedback { margin-top: 0.8rem; padding: 0.4rem 0 0.1rem 0; border-top: 1px dashed #dce6e6; }
+        .answer-block strong { display: block; margin-bottom: 3px; color: var(--primary); font-size: 0.78rem; text-transform: uppercase; }
+        .answer-list { display: flex; flex-direction: column; gap: 2px; }
+        .answer-item {
+            padding: 4px 10px; border-radius: 5px; border: 1px solid #e4edec;
+            background: #ffffff; font-weight: 500; font-size: 0.88rem;
+        }
+        .answer-correct { background: #e8f7ef; border-color: #a8d8c0; color: #0a4f3a; }
+        .answer-wrong { background: #fde9ea; border-color: #f5b8b8; color: #8a1f2b; }
+        .user-choice { outline: 2px dashed rgba(0, 0, 0, 0.06); }
+        .explanation {
+            margin-top: 5px; padding: 8px 13px; border-radius: 7px;
+            background: #f0f8f6; color: #065f4a; font-size: 0.88rem;
+            line-height: 1.55; border-left: 4px solid var(--accent);
+        }
+        .explanation.wrong { background: #fdf1f1; color: #7a1f1f; border-left-color: #e68080; }
+        .btn {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            background: linear-gradient(90deg, var(--accent), var(--primary));
+            color: #fff; border: none; padding: 0.55rem 1.8rem;
+            border-radius: var(--radius); font-weight: 600; font-size: 0.95rem;
+            cursor: pointer; transition: transform 0.15s, box-shadow 0.2s;
+            box-shadow: 0 4px 14px rgba(26, 107, 107, 0.25);
+        }
+        .btn:hover { transform: scale(1.02); box-shadow: 0 6px 24px rgba(26, 107, 107, 0.32); }
+        .btn:active { transform: scale(0.96); }
+        .btn-sm {
+            padding: 0.35rem 1.1rem; font-size: 0.82rem;
+            border-radius: 8px; margin-top: 0.5rem;
+        }
+        .submit-wrap { text-align: center; margin: 1.5rem 0 1.8rem; }
+        .result {
+            margin-top: 1.5rem; padding: 1.5rem 1.5rem 0.8rem;
+            background: #eaf6f4; border-radius: var(--radius);
+            text-align: center; display: none; border: 1px solid #b8dbd6;
+        }
+        .result h3 { font-size: 1.1rem; font-weight: 600; color: var(--dark); }
+        .score { font-size: 2.4rem; font-weight: 800; color: var(--primary); margin: 0.1rem 0 0.2rem; }
+        .text-muted { color: #4f6e6e; font-size: 0.9rem; }
+        .hidden { display: none !important; }
+        .tf-options { display: flex; gap: 1.5rem; margin-top: 0.4rem; }
+        .tf-options label {
+            display: flex; align-items: center; gap: 0.35rem;
+            background: #fafcfc; border: 1px solid #dde8e8;
+            border-radius: 7px; padding: 0.35rem 1.2rem;
+            cursor: pointer; transition: all 0.15s; font-weight: 500; font-size: 0.92rem;
+        }
+        .tf-options label:hover { background: #e8f5f4; border-color: var(--accent); }
+        .tf-options input[type="radio"] { accent-color: var(--primary); }
+        .tf-statement {
+            padding: 0.5rem 0.7rem; border-bottom: 1px solid #eef4f4;
+            font-size: 0.93rem;
+        }
+        .tf-statement:last-child { border-bottom: none; }
+        .tf-statement .stmt-text { font-weight: 500; }
+        .tf-feedback { margin-top: 0.3rem; padding: 0.4rem 0.7rem; border-radius: 6px; font-size: 0.88rem; }
+        .tf-feedback.correct { background: #e8f7ef; color: #0a4f3a; border-left: 3px solid #1a7a4a; }
+        .tf-feedback.incorrect { background: #fde9ea; color: #8a1f2b; border-left: 3px solid #b33a3a; }
+        .tf-feedback.missed { background: #fff8e6; color: #7a5a00; border-left: 3px solid #e6b800; }
+        .essay-answer {
+            margin-top: 0.8rem; padding: 1rem 1.2rem;
+            background: #f0f8f6; border-radius: 8px;
+            border-left: 4px solid var(--accent);
+            font-size: 0.92rem; line-height: 1.6;
+            display: none;
+        }
+        .essay-answer.show { display: block; }
+        .essay-answer h4 { color: var(--primary); margin-bottom: 0.4rem; font-size: 0.95rem; }
+        .essay-answer ul, .essay-answer ol { margin-left: 1.2rem; margin-bottom: 0.5rem; }
+        .essay-answer li { margin-bottom: 0.2rem; }
+        .scenario-block {
+            background: #f7fbfa; border-radius: 10px; padding: 1rem 1.2rem;
+            margin-bottom: 1.5rem; border-left: 6px solid var(--primary);
+        }
+        .scenario-block .scenario-title {
+            font-size: 1.05rem; font-weight: 700; color: var(--primary);
+            margin-bottom: 0.6rem;
+        }
+        .scenario-block .scenario-text {
+            font-size: 0.93rem; line-height: 1.6; margin-bottom: 0.8rem;
+        }
+        .sub-question {
+            background: #ffffff; border-radius: 8px; padding: 0.8rem 1rem;
+            margin-bottom: 0.8rem; border: 1px solid #e0ecec;
+        }
+        .sub-question .sq-label {
+            font-weight: 700; color: var(--primary); font-size: 0.9rem;
+            margin-bottom: 0.3rem;
+        }
+        .sub-question .sq-text {
+            font-size: 0.92rem; line-height: 1.55; margin-bottom: 0.5rem;
+        }
+        @media (max-width: 700px) {
+            body { padding-top: 68px; }
+            .logo h1 { font-size: 0.95rem; }
+            .header-inner { padding: 0 1rem; flex-direction: column; align-items: stretch; gap: 0.2rem; }
+            .badge { align-self: flex-start; }
+            .question { padding: 0.9rem 0.9rem 0.1rem 0.9rem; }
+            .section-title { font-size: 1.05rem; }
+            .score { font-size: 2rem; }
+            .btn { padding: 0.5rem 1.2rem; font-size: 0.85rem; }
+            .tab-btn { padding: 0.4rem 1.2rem; font-size: 0.85rem; }
+            .tf-options { flex-direction: column; gap: 0.3rem; }
+        }
+        @media (max-width: 420px) {
+            .logo h1 { font-size: 0.8rem; }
+            .options label { font-size: 0.85rem; padding: 0.35rem 0.65rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-inner">
+            <div class="logo">
+                <i class="fas fa-heartbeat"></i>
+                <h1>2024/2025 Biochemistry Sessional – The Copperbelt University</h1>
+            </div>
+            <span class="badge"><i class="fas fa-pencil-alt"></i> &nbsp;All Sections</span>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+
+            <div class="tab-bar">
+                <button class="tab-btn active" data-target="A">✅ Section A – MCQs</button>
+                <button class="tab-btn" data-target="B">📝 Section B – Scenarios</button>
+            </div>
+
+            <!-- ==================== SECTION A ==================== -->
+            <div id="panel-A" class="tab-panel">
+                <div class="section-title">
+                    <i class="fas fa-list-ul"></i> Section A – Multiple Choice Questions
+                    <span class="count" id="count-A">0</span>
+                </div>
+                <p class="section-subtitle">Circle the most appropriate answer. Select an option for each question, then click <strong>Submit All MCQs</strong> below.</p>
+                <form id="form-A">
+                    <div id="container-A"></div>
+                    <div class="submit-wrap">
+                        <button type="button" class="btn" onclick="submitSectionA()">
+                            <i class="fas fa-check-circle"></i> Submit All MCQs
+                        </button>
+                    </div>
+                </form>
+                <div class="result" id="result-A">
+                    <h3><i class="fas fa-chart-simple"></i> Your Score</h3>
+                    <div class="score" id="score-A">0</div>
+                    <p class="text-muted">Review the feedback below each question.</p>
+                </div>
+            </div>
+
+            <!-- ==================== SECTION B ==================== -->
+            <div id="panel-B" class="tab-panel hidden">
+                <div class="section-title">
+                    <i class="fas fa-pen-fancy"></i> Section B – Scenario Questions
+                    <span class="count" id="count-B">0</span>
+                </div>
+                <p class="section-subtitle">Answer ALL questions. Click <strong>Show Answer</strong> to reveal the model answer for each sub-question.</p>
+                <div id="container-B"></div>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+    /* =====================================================================
+       SECTION A — MCQs (40 questions from 2024/2025 Biochemistry Sessional)
+       ===================================================================== */
+    const sectionA = [
+        {
+            q: `Cells continue to function only when a metabolic disequilibrium is in effect and cells avoid reaching metabolic equilibrium. Why is it so?`,
+            options: [
+                `Cellular metabolism utilizes only those reactions that are nonreversible.`,
+                `The products of one reaction become the reactants for a different reaction and are unable to accumulate.`,
+                `The majority of important metabolic reactions have delta Gs of zero.`,
+                `In order to limit the entry of high free energy molecules once they have been catabolized.`,
+                `In order to increase the entry of high free energy molecules once they have been catabolized.`
+            ],
+            correct: `B`,
+            explanation: `Metabolic disequilibrium is essential for cell function because the products of one reaction serve as substrates for subsequent reactions, preventing accumulation of intermediates. This keeps metabolic flux directional and allows cells to maintain steady-state concentrations of metabolites. If equilibrium were reached, no net flux would occur, and the cell would be unable to perform work.`
+        },
+        {
+            q: `A 25-year-old female presents with hypermetabolism. Her symptoms include fever, heat intolerance and resting tachycardia. Additionally, she experiences mild exercise intolerance and muscle weakness. What is the most likely cause for this case?`,
+            options: [
+                `Increased ATP production`,
+                `Decreased ATP production`,
+                `Increased ETC activity and decreased ATP production`,
+                `Decreased ETC activity and increased ATP production`,
+                `Both ETC and ATP synthesis inhibited`
+            ],
+            correct: `C`,
+            explanation: `Hypermetabolism with fever, heat intolerance, and tachycardia suggests hyperthyroidism, which increases electron transport chain (ETC) activity and mitochondrial uncoupling, leading to increased heat production but decreased ATP production (because energy is dissipated as heat). This results in exercise intolerance and muscle weakness due to inefficient ATP generation.`
+        },
+        {
+            q: `A 12-month-old girl was found to have ingested approximately 30mL of an acetonitrile based cosmetic nail remover when she vomited 15minutes post-ingestion. No treatment was recommended because it was confused with an acetone based nail polish remover. Respiratory distress developed sometime after the child was put to bed, and she was found dead the following day. Inhibition of which of the ETC enzymes was the most likely cause of this child's death?`,
+            options: [
+                `NADH-CoA Reductase`,
+                `Succinate-CoA Reductase`,
+                `CoQ-Cyt c Reductase`,
+                `Cytochrome oxidase or complex IV`,
+                `ATP synthase`
+            ],
+            correct: `D`,
+            explanation: `Acetonitrile is metabolized to cyanide, which is a potent inhibitor of cytochrome c oxidase (Complex IV). Cyanide binds to the heme iron in Complex IV, blocking the transfer of electrons to oxygen and halting oxidative phosphorylation. This leads to rapid cellular ATP depletion, particularly in the brain and heart, causing death.`
+        },
+        {
+            q: `Streptococcus mutans, found in dental plaque, produces acids from the metabolism of carbohydrates. Topical fluoride treatment in the dental office can slow the production of acids, resulting in the accumulation of which metabolite?`,
+            options: [
+                `Glucose-6-phosphate`,
+                `Fructose-1,6-bisphosphate`,
+                `Glyceraldehyde-3-phosphate`,
+                `2-phosphoglycerate`,
+                `Phosphoenolpyruvate`
+            ],
+            correct: `D`,
+            explanation: `Fluoride inhibits enolase, the enzyme that converts 2-phosphoglycerate to phosphoenolpyruvate (PEP). This leads to accumulation of 2-phosphoglycerate and reduced acid production by Streptococcus mutans. The other metabolites are upstream of enolase and would not accumulate specifically due to fluoride inhibition.`
+        },
+        {
+            q: `A pediatric hematologist sees a 12-month old patient with jaundice, splenomegaly, and hemolytic anemia. The child is being evaluated for the underlying cause of a hemolytic anemia. The oxygen dissociation curve for hemoglobin in his erythrocytes is compared with the curve obtained with normal red cells and is found that the curve is shifts to the right. A blood smear indicates that RBCs are more rigid in appearance than normal. Which one of the following would have been made in abnormal amounts in the RBCs that is responsible for its rigidness and the observed oxygen dissociation curve?`,
+            options: [
+                `Acetyl CoA`,
+                `Glucose`,
+                `2,3-Bisphosphoglycerate`,
+                `OAA`,
+                `Pyruvate`
+            ],
+            correct: `C`,
+            explanation: `2,3-Bisphosphoglycerate (2,3-BPG) binds to hemoglobin and stabilizes the T-state (deoxyhemoglobin), shifting the oxygen dissociation curve to the right (decreased oxygen affinity). Increased 2,3-BPG is seen in chronic anemia as a compensatory mechanism. It also increases RBC rigidity. The other metabolites are not primarily responsible for these effects.`
+        },
+        {
+            q: `A 6-month-old boy is brought to his physical examination because of vomiting, night sweats, and tremors. History revealed that these symptoms began after fruit juices were introduced to his diet as he was being weaned off breast milk. The physical examination was remarkable for hepatomegaly. Tests on the baby's urine were positive for reducing sugar but negative for glucose. The infant most likely suffers from:`,
+            options: [
+                `aldolase B deficiency`,
+                `fructokinase deficiency`,
+                `galactokinase deficiency`,
+                `β-galactosidase deficiency`,
+                `glucose 6-phosphatase deficiency`
+            ],
+            correct: `A`,
+            explanation: `Hereditary fructose intolerance is caused by aldolase B deficiency. Symptoms appear after introduction of fructose (fruit juices, sucrose). Accumulation of fructose-1-phosphate inhibits gluconeogenesis and glycogenolysis, causing hypoglycemia, vomiting, hepatomegaly, and eventually liver/kidney failure. Urine is positive for reducing sugars (fructose) but negative for glucose.`
+        },
+        {
+            q: `A 45-year-old chronic alcoholic was brought to the emergency by his friends. During their night gathering in the local bar, he fell unconscious, and they could not revive him. The attending physician ordered IV glucose and an injection of thiamine. The patient was well oriented and alert the following day; his vital signs were stable, his blood glucose was normal, and he was discharged from the hospital. Which enzyme is thiamine dependent and vital for glucose oxidation in the brain?`,
+            options: [
+                `Pyruvate kinase`,
+                `Pyruvate dehydrogenase complex`,
+                `Pyruvate carboxylase`,
+                `Alpha-ketoglutarate dehydrogenase`,
+                `Transaldolase`
+            ],
+            correct: `B`,
+            explanation: `Thiamine (Vitamin B1) is a cofactor for several enzymes, including pyruvate dehydrogenase complex (PDH), which converts pyruvate to acetyl-CoA for entry into the TCA cycle. In thiamine deficiency (common in chronic alcoholics), PDH activity is impaired, leading to reduced ATP production in the brain, which can cause Wernicke-Korsakoff syndrome. The other enzymes listed are not thiamine-dependent or are not as critical for brain glucose oxidation.`
+        },
+        {
+            q: `People with diabetes mellitus are prone to developing cataracts because of their elevated blood glucose concentration. Which of the following is the most likely cause of elevated blood glucose concentration in developing cataracts among people with diabetes?`,
+            options: [
+                `Inhibits gluconeogenesis`,
+                `Increases glycosylase hemoglobin`,
+                `Increases glycogen synthesis within the lens`,
+                `Allows aldose reductase to reduce glucose to sorbitol`,
+                `Increases glycogen storage within the lens`
+            ],
+            correct: `D`,
+            explanation: `In diabetes, elevated blood glucose enters the lens via GLUT transporters. Aldose reductase converts glucose to sorbitol, which accumulates because it cannot be metabolized further. Sorbitol is osmotically active, drawing water into the lens and causing swelling, protein denaturation, and cataract formation. This is the polyol pathway.`
+        },
+        {
+            q: `A 5-month-old infant was brought to the pediatrician due to fussiness and a tender abdomen. The child seemed to do well until the time between feeding was increased to more than 3 h. The baby always seemed hungry and irritable if not fed frequently. Upon examination, hepatomegaly and enlarged kidneys were noted, and blood work showed fasting hypoglycemia. Subsequent laboratory analysis demonstrated that in response to a glucagon challenge, only about 10% of the normal amount of glucose was released into circulation, which significantly contributed to the fasting hypoglycemia. Which enzyme is responsible for the release of 10% of the normal amount of glucose in this case?`,
+            options: [
+                `Glucose-6-Phosphate`,
+                `Phosphofructokinase`,
+                `Branching enzyme`,
+                `Glycogen phosphorylase`,
+                `Glycogen synthase`
+            ],
+            correct: `A`,
+            explanation: `The clinical picture is consistent with Von Gierke disease (Glycogen Storage Disease Type I), caused by glucose-6-phosphatase deficiency. This enzyme is responsible for the final step of both glycogenolysis and gluconeogenesis, releasing free glucose into the blood. Without it, the liver cannot release glucose, causing severe fasting hypoglycemia, hepatomegaly, and enlarged kidneys. The 10% of normal glucose release is due to other pathways (e.g., debranching enzyme action producing glucose from limit dextrins, or intestinal glucose).`
+        },
+        {
+            q: `A 27-year-old man presents to the emergency department in an unconscious condition after a night of heavy drinking. Laboratory tests reveal a low blood glucose levels and elevated lactate and ketone bodies. The patient is treated with an intravenous glucose solution to rapidly restore blood glucose levels considering the fact that the gluconeogenesis would have been affected after a night of heavy drinking. Which of the following is the most likely cause for decrease in gluconeogenesis in this case?`,
+            options: [
+                `Inhibiting glucose-6-phosphate`,
+                `Inhibiting PEP carboxykinase`,
+                `Converting NAD into NADH and decreasing the availability of pyruvate`,
+                `Converting NAD into NADH and decreasing the availability of lactate`,
+                `Inhibiting fructose-1,6-biphosphate`
+            ],
+            correct: `C`,
+            explanation: `Alcohol metabolism increases the NADH/NAD+ ratio in the liver. This shifts the equilibrium of lactate dehydrogenase toward lactate production and inhibits gluconeogenesis because the pathway requires NAD+ for the oxidation of lactate to pyruvate and for other steps. Additionally, high NADH inhibits the TCA cycle, reducing precursors for gluconeogenesis. The decreased availability of pyruvate (due to its conversion to lactate) is a key factor.`
+        },
+        {
+            q: `A chronic alcoholic, while out on a binge, became very confused and forgetful. The police found the man and brought him to the emergency department. Upon examination in the emergency department, he displayed nystagmus, peripheral edema, pulmonary edema and ataxia. The physician orders a test to determine if there is vitamin B1 deficiency. An enzyme used for such a test can be which of the following?`,
+            options: [
+                `Transaldolase`,
+                `Aldolase`,
+                `Transketolase`,
+                `β-ketothiolase`,
+                `Acetylcholine synthase`
+            ],
+            correct: `C`,
+            explanation: `Transketolase is a thiamine (Vitamin B1)-dependent enzyme in the pentose phosphate pathway. Its activity in erythrocytes is used as a diagnostic test for thiamine deficiency (Wernicke-Korsakoff syndrome). The other enzymes are not thiamine-dependent.`
+        },
+        {
+            q: `A 24-year-old male athlete is treated with a medication that inhibits the enzyme phosphofructokinase. Which of the following effects on glycolysis would you expect?`,
+            options: [
+                `Increased glucose uptake`,
+                `Increased fructose-1,6-bisphosphate production`,
+                `Decreased lactate production`,
+                `Increased ATP production`,
+                `Increased gluconeogenesis`
+            ],
+            correct: `C`,
+            explanation: `Phosphofructokinase-1 (PFK-1) is the rate-limiting enzyme of glycolysis. Inhibition of PFK-1 would slow glycolysis, leading to decreased production of pyruvate and lactate. Glucose uptake would decrease (not increase), fructose-1,6-bisphosphate would decrease (not increase), ATP production would decrease (not increase), and gluconeogenesis would not necessarily increase.`
+        },
+        {
+            q: `A 7-year-old obese Hispanic girl presents with dehydration after 3 days of vomiting and diarrhea. Her parents mention that a sibling was diagnosed with a type of diabetes that spilled sugar into the urine but did not need treatment. Urine reagent strip test for reducing sugars is strongly positive. The physician obtains a blood glucose level that is normal and a urine glucose oxidase test on the urine is also negative for glucose. Further analysis of the urine reveals a small amount of fructose and a large amount of pentose. Which of the enzyme is most likely deficient in this case?`,
+            options: [
+                `L-Gulonate dioxygenase`,
+                `Lactate DHase`,
+                `Dicabonyl/L-Xylulose DHase`,
+                `L-Mannose epimerase`,
+                `Glucuronate DHase`
+            ],
+            correct: `C`,
+            explanation: `This is essential pentosuria, caused by a deficiency of L-xylulose dehydrogenase (also called dicarbonyl/L-xylulose reductase). This enzyme is involved in the glucuronic acid pathway. Deficiency leads to excretion of L-xylulose (a pentose) in urine, which gives a positive reducing sugar test but negative glucose oxidase test. It is a benign condition, common in Ashkenazi Jews.`
+        },
+        {
+            q: `A 10-year-old child with aggressive behavior and poor concentration is brought with presenting complaints of joint pain and reduced urinary output. Mother gives history of self-mutilate his finger. Which of the following enzymes is likely to be deficient in this child?`,
+            options: [
+                `DHGPRTase`,
+                `Adenosine deaminase`,
+                `APRTase`,
+                `Acid maltase`,
+                `Xanthine oxidase`
+            ],
+            correct: `A`,
+            explanation: `The clinical picture is classic for Lesch-Nyhan syndrome, caused by deficiency of hypoxanthine-guanine phosphoribosyltransferase (HGPRTase). This X-linked disorder leads to hyperuricemia (joint pain, renal calculi), self-mutilating behavior, aggressive behavior, and neurological dysfunction.`
+        },
+        {
+            q: `A 4-year-old boy is diagnosed with a severe immunodeficiency disorder. His laboratory results show a significant decrease in T-cell function and a marked accumulation of deoxyadenosine triphosphate (dATP) in his lymphocytes. Which enzyme deficiency is most likely responsible for this condition?`,
+            options: [
+                `Adenosine deaminase (ADA) deficiency`,
+                `Hypoxanthine-guanine phosphoribosyltransferase (HGPRT) deficiency`,
+                `Purine nucleoside phosphorylase (PNP) deficiency`,
+                `Adenine phosphoribosyltransferase (APRT) deficiency`,
+                `Xanthine oxidase deficiency`
+            ],
+            correct: `A`,
+            explanation: `Adenosine deaminase (ADA) deficiency causes severe combined immunodeficiency (SCID). Without ADA, deoxyadenosine accumulates and is phosphorylated to dATP, which inhibits ribonucleotide reductase and DNA synthesis, leading to lymphocyte toxicity. This results in profound T-cell and B-cell dysfunction.`
+        },
+        {
+            q: `The production of mRNA in eukaryotic cells requires a large number of steps, and drugs targeted to any of these steps could block mRNA production. Which one of the following accurately describes a part of the process of producing mRNA from a eukaryotic gene?`,
+            options: [
+                `The sense strand of DNA is the strand used by RNA polymerase during transcription.`,
+                `The antisense DNA strand is identical to the RNA transcript except that the DNA strand contains thymine and the RNA strand contains uracil.`,
+                `The first RNA form produced contains both intron and exon sequences.`,
+                `Mature mRNA contains a cap at the 5'-end, a poly(A) tail at the 3' end, introns, and exons.`,
+                `During processing in the nucleus of a precursor mRNA, introns and exons are shuffled in sequence to produce the mature mRNA.`
+            ],
+            correct: `C`,
+            explanation: `The primary transcript (pre-mRNA) contains both introns and exons. Introns are removed during splicing to produce mature mRNA. The sense strand is not used by RNA polymerase; the antisense strand is the template. The antisense strand is complementary to the RNA transcript (not identical). Mature mRNA does not contain introns. Exons are not shuffled; they are spliced in order.`
+        },
+        {
+            q: `The deficiency of an excision endonuclease may produce an exquisite sensitivity to ultraviolet radiation in Xeroderma pigmentosum. Which of the following functions would be absent in a patient deficient in this endonuclease?`,
+            options: [
+                `Removal of introns`,
+                `Removal of pyrimidine dimers`,
+                `Protection against DNA viruses`,
+                `Repair of mismatched bases during DNA replication`,
+                `Repair of mismatched bases during transcription`
+            ],
+            correct: `B`,
+            explanation: `Xeroderma pigmentosum is caused by a defect in nucleotide excision repair (NER). The excision endonuclease is responsible for removing damaged DNA segments containing pyrimidine dimers induced by UV radiation. Without this repair, mutations accumulate, leading to skin cancers.`
+        },
+        {
+            q: `A gene is transcribed and being post-transcriptionally processed into an mRNA molecule that undergoes alternative splicing. Which of the following is a potential outcome of alternative splicing?`,
+            options: [
+                `The production of multiple proteins from a single gene`,
+                `The production of a single protein from multiple genes`,
+                `The inhibition of translation initiation`,
+                `The enhancement of translation elongation`,
+                `The degradation of the mRNA molecule`
+            ],
+            correct: `A`,
+            explanation: `Alternative splicing allows a single gene to produce multiple mRNA variants by differentially joining exons, leading to the production of multiple protein isoforms. This increases proteome diversity.`
+        },
+        {
+            q: `The retroviruses, including HIV, use an RNA genome. In order to generate DNA from the genomic RNA, the enzyme reverse transcriptase is required. Reverse transcriptase differs specifically from DNA Pol δ by which one of the following?`,
+            options: [
+                `Synthesizing DNA in the 5'-to-3' direction`,
+                `Expressing 3'-to-5' exonuclease activity`,
+                `Using Watson-Crick base-pair rules during DNA synthesis`,
+                `Synthesizing DNA in the 3'-to-5' direction`,
+                `Inserting inosine into a growing DNA chain`
+            ],
+            correct: `B`,
+            explanation: `Reverse transcriptase lacks 3'-to-5' exonuclease (proofreading) activity, whereas DNA polymerase δ has this activity. This makes reverse transcriptase error-prone, contributing to the high mutation rate of retroviruses like HIV. Both synthesize DNA in the 5'-to-3' direction and use Watson-Crick base pairing.`
+        },
+        {
+            q: `E. coli will only express genes for lactose metabolism when lactose is present in the growth medium. In E. coli, under high-lactose, high-glucose conditions, which one of the following could lead to maximal transcription activation of the lac operon?`,
+            options: [
+                `A mutation in the lac I gene (which encodes the repressor)`,
+                `A mutation in the CRP-binding site leading to enhanced binding`,
+                `A mutation in the operator sequence`,
+                `A mutation leading to enhanced cAMP levels`,
+                `A mutation leading to lower binding of repressor`
+            ],
+            correct: `B`,
+            explanation: `Under high-lactose, high-glucose conditions, the lac operon is normally not maximally activated because glucose lowers cAMP levels, reducing CRP (catabolite activator protein) binding. A mutation in the CRP-binding site that enhances CRP binding (even at low cAMP) would allow maximal transcription activation. A mutation in lac I or operator would cause constitutive expression but not necessarily maximal activation. Enhanced cAMP levels would help, but the question asks for maximal activation under high-glucose conditions; enhanced CRP binding is the most direct.`
+        },
+        {
+            q: `A researcher is studying the attenuation process of the trp operon and discovers a mutation that reduces the translation rate of the leader peptide. What would be the expected outcome of this mutation?`,
+            options: [
+                `The trp operon would be constitutively expressed`,
+                `The trp operon would be repressed even in the absence of tryptophan`,
+                `The trp operon would be more sensitive to tryptophan levels`,
+                `The trp operon would be less sensitive to tryptophan levels`,
+                `The trp operon would be unaffected by the mutation`
+            ],
+            correct: `A`,
+            explanation: `Attenuation of the trp operon depends on the rate of translation of the leader peptide. If translation is slowed (e.g., by a mutation), the ribosome stalls at the trp codons, allowing the formation of the anti-terminator stem-loop and preventing termination. This leads to constitutive expression of the trp operon, even in the presence of tryptophan.`
+        },
+        {
+            q: `A nasopharyngeal swab obtained from a 4-month-old infant with rhinitis and paroxysmal coughing tested positive upon culture for Bordetella pertussis. He was admitted to the hospital for therapy with an antibiotic that inhibits the translocation of the 70S ribosomes on the mRNA. This patient was most likely treated with which of the followings?`,
+            options: [
+                `Erythromycin`,
+                `Tetracycline`,
+                `Chloramphenicol`,
+                `Rifamycin`,
+                `Levofloxacin`
+            ],
+            correct: `A`,
+            explanation: `Erythromycin is a macrolide antibiotic that binds to the 50S ribosomal subunit and inhibits translocation of the ribosome along mRNA. It is the treatment of choice for pertussis (whooping cough) caused by Bordetella pertussis. Tetracycline and chloramphenicol also inhibit 70S ribosomes but are not first-line for pertussis. Rifamycin inhibits transcription, and levofloxacin inhibits DNA gyrase.`
+        },
+        {
+            q: `In the regulation of human β-globin gene cluster during development, the ε-globin gene is expressed in the embryonic stage, while the β-globin gene is expressed in the adult stage. What is the most likely mechanism underlying this developmental control in gene expression?`,
+            options: [
+                `DNA methylation`,
+                `Histone modification`,
+                `Gene switching mediated by transcription factors`,
+                `Chromatin looping`,
+                `Post-transcriptional regulation`
+            ],
+            correct: `C`,
+            explanation: `Developmental switching of globin genes is primarily regulated by transcription factors that bind to promoters and enhancers of the globin genes, leading to sequential expression of ε, γ, and β globins. While DNA methylation and histone modifications play a role, the key mechanism is gene switching mediated by transcription factors.`
+        },
+        {
+            q: `A researcher is studying the regulation of a specific gene in a cell. She discovers that a small interfering RNA (siRNA) is targeting the mRNA transcript of this gene, leading to no expression of the gene. What is the most likely mechanism of this RNA interference (RNAi) process?`,
+            options: [
+                `The gene is transcriptionally activated`,
+                `The gene is transcriptionally repressed`,
+                `The mRNA transcript is translated more efficiently`,
+                `The protein product is degraded`,
+                `The mRNA transcript is degraded`
+            ],
+            correct: `E`,
+            explanation: `siRNA mediates RNA interference by forming the RNA-induced silencing complex (RISC), which cleaves and degrades the target mRNA, preventing translation. This is a post-transcriptional silencing mechanism.`
+        },
+        {
+            q: `Two restriction enzymes, X and Y, recognize different DNA sequences but generate the same sticky ends (5'-CG-3' overhang). What term best describes these enzymes?`,
+            options: [
+                `Isoschizomers`,
+                `Neoschizomers`,
+                `Isocaudomers`,
+                `Homoschizomers`,
+                `Type II restriction enzymes`
+            ],
+            correct: `C`,
+            explanation: `Isocaudomers are restriction enzymes that recognize different DNA sequences but produce the same cohesive (sticky) ends. Isoschizomers recognize the same sequence and cut at the same site. Neoschizomers recognize the same sequence but cut at different sites.`
+        },
+        {
+            q: `A paternity test is performed using DNA samples from a mother, child, and alleged father. Which of the following techniques is most commonly used to analyze the DNA samples?`,
+            options: [
+                `Polymerase Chain Reaction`,
+                `DNA footprinting analysis`,
+                `Short Tandem Repeat analysis`,
+                `Mitochondrial DNA sequencing`,
+                `Y-chromosome haplotyping`
+            ],
+            correct: `C`,
+            explanation: `Short Tandem Repeat (STR) analysis is the standard technique for paternity testing. STRs are highly polymorphic DNA sequences that are amplified by PCR and analyzed by capillary electrophoresis. The child's STR profile is compared to the mother and alleged father to determine paternity.`
+        },
+        {
+            q: `A technician in a genetic lab is using FISH to detect a specific chromosomal abnormality in a patient's cells. Which of the following is a key advantage of using FISH over traditional cytogenetic techniques?`,
+            options: [
+                `Ability to detect small DNA sequences`,
+                `Ability to visualize DNA during metaphase`,
+                `Ability to detect gene expression levels`,
+                `Ability to sequence entire genomes`,
+                `Ability to identify specific proteins`
+            ],
+            correct: `A`,
+            explanation: `FISH (Fluorescence In Situ Hybridization) uses fluorescent probes that bind to specific DNA sequences, allowing detection of small deletions, duplications, and translocations that are below the resolution of traditional karyotyping. It can detect specific DNA sequences at the single-cell level.`
+        },
+        {
+            q: `A 25-year-old woman presents with a low red blood cell count, corneal opacities, and kidney insufficiency. She is diagnosed with lecithin: Cholesterol acyl transferase (LCAT) deficiency. Which of the following is LCAT involved in?`,
+            options: [
+                `Converting cholesterol to cholesteryl ester`,
+                `Transfer of cholesterol to other lipoproteins`,
+                `Degradation of HDL in the liver`,
+                `Degradation of chylomicrons`,
+                `Decreased uptake of cholesterol by hepatocytes`
+            ],
+            correct: `A`,
+            explanation: `LCAT (lecithin:cholesterol acyltransferase) is an enzyme that converts free cholesterol to cholesteryl esters on the surface of HDL. This reaction is essential for the maturation of HDL and reverse cholesterol transport. Deficiency leads to corneal opacities, hemolytic anemia, and renal failure.`
+        },
+        {
+            q: `A 40-year-old man presents with severe pain in his legs upon walking. He is diagnosed with atherosclerotic plaques in the arteries of his legs. High levels of cholesterol and LDL contribute to the formation of atherosclerosis. The oxidized form of LDL triggers the process of atherosclerosis. Which of the following is the most important component of LDL?`,
+            options: [
+                `Apo B48`,
+                `Apo B100`,
+                `Apo A`,
+                `Apo C`,
+                `Apo E`
+            ],
+            correct: `B`,
+            explanation: `LDL contains apolipoprotein B-100 (Apo B-100) as its major apolipoprotein. Apo B-100 is recognized by the LDL receptor and is essential for LDL uptake. Oxidized LDL is taken up by scavenger receptors on macrophages, leading to foam cell formation and atherosclerosis.`
+        },
+        {
+            q: `Ketosis does not occur in vivo unless there is;`,
+            options: [
+                `Increased levels of circulating free fatty acids`,
+                `Decreased levels of circulating free fatty acids`,
+                `Increased levels of circulating cholesterol`,
+                `Decreased levels of circulating cholesterol`,
+                `Increased levels of circulating glucose molecules`
+            ],
+            correct: `A`,
+            explanation: `Ketosis requires increased circulating free fatty acids (FFA) to provide substrate for hepatic ketogenesis. This occurs during fasting, starvation, or uncontrolled diabetes when insulin is low and glucagon is high, leading to lipolysis in adipose tissue and increased FFA delivery to the liver.`
+        },
+        {
+            q: `Which of the following best describes the function of the Acyl Carrier Protein (ACP) component of the Fatty Acid Synthase (FAS) complex?`,
+            options: [
+                `It provides the reducing power (NADPH) for the synthesis reactions.`,
+                `It contains the thiol group that holds the growing acyl chain during the synthesis cycles.`,
+                `It catalyzes the final release of palmitate from the enzyme complex.`,
+                `It is the site where Acetyl-CoA carboxylase performs its reaction.`,
+                `It is a regulatory protein activated by insulin.`
+            ],
+            correct: `B`,
+            explanation: `Acyl Carrier Protein (ACP) contains a phosphopantetheine prosthetic group with a thiol (SH) group that holds the growing fatty acid chain during synthesis. The chain is attached as a thioester and transferred between active sites of the FAS complex.`
+        },
+        {
+            q: `The molecule Malonyl-CoA serves a dual role in fatty acid metabolism. Besides being the 2-carbon donor for synthesis, it also allosterically inhibits which key enzyme in β-oxidation?`,
+            options: [
+                `Acyl-CoA dehydrogenase`,
+                `Thiolase`,
+                `HMG-CoA reductase`,
+                `Carnitine Palmitoyltransferase I (CPT-I)`,
+                `Citrate lyase`
+            ],
+            correct: `D`,
+            explanation: `Malonyl-CoA allosterically inhibits carnitine palmitoyltransferase I (CPT-I), the enzyme that controls the entry of long-chain fatty acyl-CoA into the mitochondria for β-oxidation. This prevents simultaneous fatty acid synthesis and oxidation (futile cycle).`
+        },
+        {
+            q: `A 34-year-old female has been diagnosed with type 1 hyperlipidemia. Which of the following lipoprotein concentrations is elevated in such a disorder?`,
+            options: [
+                `VLDL`,
+                `LDL`,
+                `HDL`,
+                `Chylomicrons`,
+                `All the above`
+            ],
+            correct: `D`,
+            explanation: `Type I hyperlipoproteinemia (familial chylomicronemia syndrome) is characterized by elevated chylomicrons due to deficiency of lipoprotein lipase (LPL) or apolipoprotein C-II. This leads to severe hypertriglyceridemia, eruptive xanthomas, and pancreatitis.`
+        },
+        {
+            q: `A couple of African American descent gives birth to a boy after an otherwise uneventful pregnancy. The child is exceptionally fair-skinned and has almost white hair. Further examination reveals red pupils. A postnatal screen is likely to confirm the deficiency of which of the following enzymes?`,
+            options: [
+                `Glutathione reductase`,
+                `Glutathione peroxidase`,
+                `Tyrosinase`,
+                `Methionine synthase`,
+                `Cystathionine beta synthase`
+            ],
+            correct: `C`,
+            explanation: `Oculocutaneous albinism is caused by a deficiency of tyrosinase, the enzyme that converts tyrosine to DOPA and then to melanin. Without melanin, the child has fair skin, white hair, and red pupils (due to lack of pigment in the iris).`
+        },
+        {
+            q: `A 10-year-old boy develops convulsions. After running an electroencephalogram (EEG), a neurologist determines that the child has epilepsy. He was started on benzodiazepine, which promotes the activity of GABA. Which of the following reactions will yield GABA from Glutamate?`,
+            options: [
+                `Transamination`,
+                `Decarboxylation`,
+                `Denaturation`,
+                `Hydroxylation`,
+                `Dehydrogenation`
+            ],
+            correct: `B`,
+            explanation: `GABA (γ-aminobutyric acid) is synthesized from glutamate by the enzyme glutamate decarboxylase, which catalyzes a decarboxylation reaction (removal of CO2). This enzyme requires pyridoxal phosphate (Vitamin B6) as a cofactor.`
+        },
+        {
+            q: `The patient, who for a long time has been keeping to an unbalanced low-protein diet, developed fatty liver infiltration. Name the substance, absence of which in the diet can lead to this condition:`,
+            options: [
+                `Methionine`,
+                `Alanine`,
+                `Cholesterol`,
+                `Arachidonic acid`,
+                `Biotin`
+            ],
+            correct: `A`,
+            explanation: `Methionine is an essential amino acid that is a precursor for S-adenosylmethionine (SAM), which is required for the synthesis of phosphatidylcholine (lecithin). Phosphatidylcholine is essential for the assembly and secretion of VLDL from the liver. Deficiency of methionine (and choline) leads to impaired VLDL secretion and fatty liver infiltration.`
+        },
+        {
+            q: `A patient has been prescribed pyridoxal phosphate. What processes are corrected with this drug?`,
+            options: [
+                `Transamination and decarboxylation of amino acids`,
+                `Oxidative decarboxylation of keto acids`,
+                `Deamination of amino acids`,
+                `Synthesis of purine and pyrimidine bases`,
+                `Protein synthesis`
+            ],
+            correct: `A`,
+            explanation: `Pyridoxal phosphate (PLP, Vitamin B6) is a cofactor for many enzymes, particularly transaminases (transamination) and decarboxylases (decarboxylation of amino acids). It is also involved in other reactions, but the primary processes corrected by PLP supplementation are transamination and decarboxylation.`
+        },
+        {
+            q: `A patient with hereditary hyperammonaemia due to a disorder of the ornithine cycle has developed secondary orotic aciduria. The increased synthesis of orotic acid is caused by an increase in the following metabolite of the ornithine cycle:`,
+            options: [
+                `Carbamoylphosphate`,
+                `Citrulline`,
+                `Ornithine`,
+                `Urea`,
+                `Arginosuccinate`
+            ],
+            correct: `A`,
+            explanation: `In urea cycle disorders, particularly ornithine transcarbamylase (OTC) deficiency, carbamoyl phosphate accumulates in the mitochondria and is shunted into the cytosol, where it enters the pyrimidine synthesis pathway, leading to increased orotic acid production (orotic aciduria).`
+        },
+        {
+            q: `Obesity generally reflects excess intake of energy and is often associated with the development of`,
+            options: [
+                `Nervousness`,
+                `Non-insulin-dependent diabetes mellitus`,
+                `Hepatitis`,
+                `Colon cancer`,
+                `Night blindness`
+            ],
+            correct: `B`,
+            explanation: `Obesity is a major risk factor for type 2 (non-insulin-dependent) diabetes mellitus due to insulin resistance. It is also associated with other conditions, but the most direct and common association is with type 2 diabetes.`
+        },
+        {
+            q: `A 60-year-old man consulted a doctor about the onset of chest pain. Blood serum analysis showed a significant increase in the activity of the following enzymes: creatine kinase and its MB isoform, aspartate aminotransferase. These changes indicate the development of the pathological process in the following tissues:`,
+            options: [
+                `Cardiac muscle`,
+                `Lungs`,
+                `Skeletal muscles`,
+                `Cardiac muscle and Liver`,
+                `Smooth muscles`
+            ],
+            correct: `A`,
+            explanation: `Elevated creatine kinase MB (CK-MB) and aspartate aminotransferase (AST) are classic markers of myocardial infarction (cardiac muscle damage). CK-MB is highly specific for cardiac muscle, while AST is also found in the liver, but the combination with chest pain points to cardiac muscle.`
+        }
+    ];
+
+    /* =====================================================================
+       SECTION B — SCENARIO QUESTIONS (11 scenarios with sub-questions)
+       ===================================================================== */
+    const sectionB = [
+        {
+            scenario: `A 6-year-old boy presents with elevated body temperature, muscle weakness, fatigue, and developmental delays. His parents report episodes of seizures and neurological regression. Laboratory tests reveal elevated lactate levels in blood and cerebrospinal fluid, and muscle biopsy shows abnormal mitochondrial morphology.`,
+            subquestions: [
+                {
+                    label: `a)`,
+                    text: `What is the most likely diagnosis and what is the biochemical basis for your diagnosis? (1 mark)`,
+                    answer: `<h4>Model Answer</h4>
+                    <p><strong>Diagnosis:</strong> MELAS syndrome (Mitochondrial Encephalomyopathy, Lactic Acidosis, and Stroke-like episodes).</p>
+                    <p><strong>Biochemical basis:</strong> MELAS is caused by mutations in mitochondrial DNA (mtDNA), most commonly the A3243G mutation in the tRNA<sup>Leu</sup> gene. This impairs mitochondrial protein synthesis and oxidative phosphorylation, leading to defective electron transport chain (ETC) function. The result is impaired ATP production, increased anaerobic glycolysis (lactic acidosis), and energy failure in highly metabolic tissues like brain and muscle.</p>`
+                },
+                {
+                    label: `b)`,
+                    text: `Explain biochemically why there is a presentation of muscle weakness in this case. (1 mark)`,
+                    answer: `<h4>Model Answer</h4>
+                    <p>Muscle weakness occurs because skeletal muscle has a high energy demand and relies heavily on oxidative phosphorylation for ATP production. Defective mitochondria cannot generate sufficient ATP for muscle contraction and relaxation. The resulting energy deficit leads to muscle fatigue, weakness, and exercise intolerance. Additionally, accumulation of lactate and other metabolites may contribute to muscle dysfunction.</p>`
+                },
+                {
+                    label: `c)`,
+                    text: `Describe briefly the biochemical basis for the elevated body temperature in this condition. (1 mark)`,
+                    answer: `<h4>Model Answer</h4>
+                    <p>Elevated body temperature (hyperthermia) in mitochondrial disorders may result from uncoupling of oxidative phosphorylation. When the ETC is defective, the proton gradient across the inner mitochondrial membrane cannot be used efficiently for ATP synthesis. Instead, the energy is dissipated as heat, leading to increased body temperature. Additionally, cellular stress and inflammation may contribute to fever.</p>`
+                },
+                {
+                    label: `d)`,
+                    text: `Explain biochemically why there was a developmental delays in this case. (1 mark)`,
+                    answer: `<h4>Model Answer</h4>
+                    <p>Developmental delay occurs because the brain is highly dependent on oxidative phosphorylation for ATP production. Defective mitochondria cannot meet the energy demands of the developing brain, leading to impaired neuronal migration, synaptogenesis, and myelination. Chronic energy failure and lactic acidosis in the CNS cause neuronal damage and neurological regression. The brain's high metabolic rate makes it particularly vulnerable to mitochondrial dysfunction.</p>`
+                },
+                {
+                    label: `e)`,
+                    text: `Describe briefly the biochemical basis for the elevated lactate levels in blood and cerebrospinal fluid in this case. (1 mark)`,
+                    answer: `<h4>Model Answer</h4>
+                    <p>Elevated lactate occurs because defective oxidative phosphorylation forces cells to rely on anaerobic glycolysis for ATP production. In anaerobic glycolysis, pyruvate is converted to lactate by lactate dehydrogenase (LDH) to regenerate NAD+ from NADH, allowing glycolysis to continue. This results in increased lactate production, which spills into the blood and cerebrospinal fluid. The lactate/pyruvate ratio is typically elevated, reflecting impaired mitochondrial oxidation of pyruvate.</p>`
+                }
+            ]
+        },
+        {
+            scenario: `A 4-year-old boy presents with jaundice, fatigue, and shortness of breath, and has a history of anemia requiring multiple blood-transfusions. Laboratory results show low hemoglobin, elevated reticulocyte count, and elevated bilirubin, erythrocyte 2,3-bisphosphoglycerate (2,3-BPG) level and lactate dehydrogenase activities. The physician started blood transfusion and folic acid supplementation as a part of his treatment options.`,
+            subquestions: [
+                {
+                    label: `a)`,
+                    text: `Which enzyme deficiency is most likely and what is the biochemical basis for your answer? (1 mark)`,
+                    answer: `<h4>Model Answer</h4>
+                    <p><strong>Enzyme deficiency:</strong> Pyruvate kinase (PK) deficiency.</p>
+                    <p><strong>Biochemical basis:</strong> Pyruvate kinase catalyzes the final step of glycolysis, converting phosphoenolpyruvate (PEP) to pyruvate, generating one ATP molecule. In PK deficiency, red blood cells (which rely exclusively on glycolysis for ATP) cannot produce sufficient ATP to maintain membrane integrity and ion pumps. This leads to premature destruction of RBCs (hemolytic anemia). The elevated 2,3-BPG is a compensatory mechanism to improve oxygen delivery to tissues. Elevated reticulocyte count and LDH reflect increased RBC production and destruction, respectively.</p>`
+                },
+                {
+                    label: `b)`,
+                    text: `Which pathway is affected in this condition? Write the normal reaction of the pathway that is affected in this condition. (2 marks)`,
+                    answer: `<h4>Model Answer</h4>
+                    <p><strong>Pathway affected:</strong> Glycolysis (specifically the final step of anaerobic glycolysis in RBCs).</p>
+                    <p><strong>Normal reaction:</strong></p>
+                    <p>Phosphoenolpyruvate (PEP) + ADP → Pyruvate + ATP</p>
+                    <p>This reaction is catalyzed by pyruvate kinase. It is one of the two substrate-level phosphorylation steps in glycolysis that generate ATP. In PK deficiency, this step is impaired, leading to decreased ATP production in RBCs.</p>`
+                },
+                {
+                    label: `c)`,
+                    text: `Explain biochemically the basis for the reported anemia and jaundice in this case. (1 mark)`,
+                    answer: `<h4>Model Answer</h4>
+                    <p><strong>Anemia:</strong> PK deficiency leads to reduced ATP production in RBCs. Without sufficient ATP, the Na+/K+ ATPase and other ion pumps fail, causing water influx, cell swelling, and membrane damage. The rigid, energy-depleted RBCs are trapped and destroyed in the spleen (extravascular hemolysis), leading to anemia.</p>
+                    <p><strong>Jaundice:</strong> The breakdown of hemoglobin from destroyed RBCs releases heme, which is converted to bilirubin. The liver cannot conjugate and excrete the increased bilirubin load fast enough, leading to unconjugated hyperbilirubinemia and jaundice. Elevated LDH is also a marker of hemolysis.</p>`
+                },
+                {
+                    label: `d)`,
+                    text: `Describe briefly the biochemical basis for the elevated reticulocyte count and lactate dehydrogenase activity in this case. (1 mark)`,
+                    answer: `<h4>Model Answer</h4>
+                    <p><strong>Elevated reticulocyte count:</strong> The bone marrow responds to anemia (low oxygen-carrying capacity) by increasing erythropoiesis. Reticulocytes are immature RBCs released into circulation, reflecting increased RBC production. In hemolytic anemia, the marrow attempts to compensate for the loss of RBCs by producing more reticulocytes.</p>
+                    <p><strong>Elevated LDH:</strong> Lactate dehydrogenase is abundant in RBCs. When RBCs are destroyed (hemolysis), LDH is released into the bloodstream, leading to elevated serum LDH levels. This is a non-specific marker of cell destruction but is classically elevated in hemolytic anemias.</p>`
+                }
+            ]
+        },
+        {
+            scenario: `A 2-year-old male presented with hepatomegaly, hypoglycemia, lactic acidosis, and failure to thrive. Biochemical analysis revealed a serum glucose level of 20 mg/dL (normal range: 70-110 mg/dL), a serum lactate level of 10 mmol/L (normal range: 0.5-2.5 mmol/L), and a reduced glucose-6-phosphatase activity in liver tissue (5% of normal). His urine analysis showed elevated levels of lactate and uric acid.`,
+            subquestions: [
+                {
+                    label: `a)`,
+                    text: `Which type of glycogen storage disease is most likely and what is the basis for your answer? (1 mark)`,
+                    answer: `<h4>Model Answer</h4>
+                    <p><strong>Diagnosis:</strong> Von Gierke disease (Glycogen Storage Disease Type Ia).</p>
+                    <p><strong>Basis:</strong> The key findings are hepatomegaly, fasting hypoglycemia, lactic acidosis, and markedly reduced glucose-6-phosphatase activity (5% of normal). Glucose-6-phosphatase is the enzyme responsible for the final step of both glycogenolysis and gluconeogenesis, releasing free glucose into the blood. Deficiency leads to severe fasting hypoglycemia, accumulation of glycogen in the liver (hepatomegaly), and increased lactate production (because glucose-6-phosphate is shunted to lactate). Hyperuricemia is also common due to increased purine degradation and impaired renal excretion.</p>`
+                },
+                {
+                    label: `b)`,
+                    text: `What is the primary metabolic defect (the defective biochemical process) in this condition? (1 mark)`,
+                    answer: `<h4>Model Answer</h4>
+                    <p><strong>Primary metabolic defect:</strong> Defective glycogenolysis and gluconeogenesis due to glucose-6-phosphatase deficiency.</p>
+                    <p>Glucose-6-phosphatase catalyzes the hydrolysis of glucose-6-phosphate to free glucose and inorganic phosphate. This enzyme is located in the endoplasmic reticulum of hepatocytes and renal tubular cells. Without it, the liver cannot release glucose into the bloodstream during fasting, leading to hypoglycemia. Additionally, glucose-6-phosphate accumulates and is metabolized via glycolysis to lactate, causing lactic acidosis, or via the pentose phosphate pathway and purine degradation to uric acid, causing hyperuricemia.</p>`
+                },
+                {
+                    label: `c)`,
+                    text: `How does the reduced glucose-6-phosphatase activity contribute to the patient's clinical presentation of hepatomegaly? (1 mark)`,
+                    answer: `<h4>Model Answer</h4>
+                    <p>Reduced glucose-6-phosphatase activity leads to accumulation of glucose-6-phosphate in the liver. This intermediate cannot be converted to free glucose, so it is instead shunted into glycogen synthesis, causing excessive glycogen accumulation in hepatocytes. The liver becomes enlarged (hepatomegaly) due to the storage of glycogen and fat (steatosis). Additionally, the inability to maintain normal blood glucose stimulates insulin secretion, further promoting glycogen storage and inhibiting glycogen breakdown.</p>`
+                },
+                {
+                    label: `d)`,
+                    text: `Explain biochemically why was a hypoglycemia in this case. (1 mark)`,
+                    answer: `<h4>Model Answer</h4>
+                    <p>Hypoglycemia occurs because the liver cannot release free glucose into the blood. Glucose-6-phosphatase is the final enzyme in both glycogenolysis and gluconeogenesis. Without it, glucose-6-phosphate cannot be dephosphorylated to glucose, so it remains trapped in the liver. During fasting, when blood glucose levels drop, the liver is unable to mobilize its glycogen stores or synthesize new glucose, leading to severe fasting hypoglycemia. The patient depends on frequent feeding to maintain blood glucose.</p>`
+                },
+                {
+                    label: `e)`,
+                    text: `Describe briefly the biochemical basis for the elevated serum lactate levels in this case. (1 mark)`,
+                    answer: `<h4>Model Answer</h4>
+                    <p>Elevated lactate occurs because glucose-6-phosphate accumulates in the liver and is shunted into glycolysis. The increased glycolytic flux produces excess pyruvate, which is converted to lactate by lactate dehydrogenase (LDH) to regenerate NAD+. Additionally, the liver's ability to clear lactate via gluconeogenesis is impaired because gluconeogenesis is blocked at glucose-6-phosphatase. The combination of increased production and decreased clearance leads to lactic acidosis.</p>`
+                }
+            ]
+        },
+        {
+            scenario: `A 30-year-old woman presents with lethargy, seizures, and lactic acidosis after consuming large quantities of raw eggs for several months. Laboratory tests reveal elevated lactate and pyruvate levels, hypoglycemia and metabolic acidosis. The physician started biotin supplementation as a part of his treatment options.`,
+            subquestions: [
+                {
+                    label: `a)`,
+                    text: `What is the most likely diagnosis and what is the biochemical basis for your diagnosis? (1 mark)`,
+                    answer: `<h4>Model Answer</h4>
+                    <p><strong>Diagnosis:</strong> Biotin deficiency (caused by excessive consumption of raw eggs).</p>
+                    <p><strong>Biochemical basis:</strong> Raw egg whites contain avidin, a glycoprotein that binds biotin with high affinity and prevents its absorption. Biotin is a cofactor for carboxylase enzymes: pyruvate carboxylase, acetyl-CoA carboxylase, propionyl-CoA carboxylase, and β-methylcrotonyl-CoA carboxylase. Deficiency of pyruvate carboxylase impairs gluconeogenesis from pyruvate, leading to hypoglycemia and lactic acidosis. Elevated pyruvate and lactate occur because pyruvate cannot be converted to oxaloacetate for gluconeogenesis or enter the TCA cycle efficiently. Seizures and lethargy are due to energy failure in the brain.</p>`
+                },
+                {
+                    label: `b)`,
+                    text: `Which pathway is affected in this condition? Write the normal reaction of the pathway that is affected in this condition. (2 marks)`,
+                    answer: `<h4>Model Answer</h4>
+                    <p><strong>Pathway affected:</strong> Gluconeogenesis (and TCA cycle anaplerosis).</p>
+                    <p><strong>Normal reaction:</strong></p>
+                    <p>Pyruvate + CO2 + ATP → Oxaloacetate + ADP + Pi</p>
+                    <p>This reaction is catalyzed by pyruvate carboxylase, a biotin-dependent enzyme. It converts pyruvate to oxaloacetate, which is a key intermediate in gluconeogenesis and the TCA cycle. In biotin deficiency, this reaction is impaired, leading to reduced gluconeogenesis and accumulation of pyruvate and lactate.</p>`
+                },
+                {
+                    label: `c)`,
+                    text: `Describe briefly the biochemical basis for the reported hypoglycemia and metabolic acidosis in this case. (1 mark)`,
+                    answer: `<h4>Model Answer</h4>
+                    <p><strong>Hypoglycemia:</strong> Pyruvate carboxylase deficiency impairs gluconeogenesis. During fasting, the liver cannot synthesize glucose from pyruvate, lactate, or amino acids, leading to hypoglycemia.</p>
+                    <p><strong>Metabolic acidosis:</strong> Impaired pyruvate carboxylase activity leads to accumulation of pyruvate, which is converted to lactate by LDH, causing lactic acidosis. Additionally, impaired TCA cycle flux reduces the oxidation of acetyl-CoA, further contributing to acidosis. The accumulation of lactate and pyruvate lowers blood pH, resulting in metabolic acidosis.</p>`
+                }
+            ]
+        },
+        {
+            scenario: `A 5-year-old male patient presented with severe gouty arthritis, renal calculi, and self-mutilating behavior. Biochemical analysis revealed elevated serum uric acid levels (14.2 mg/dL), and increased urinary uric acid excretion (1,200 mg/24 hours). The genetic analysis confirmed the diagnosis of a single gene disorder.`,
+            subquestions: [
+                {
+                    label: `a)`,
+                    text: `What is the most likely diagnosis and what is the basis for your diagnosis? (1 mark)`,
+                    answer: `<h4>Model Answer</h4>
+                    <p><strong>Diagnosis:</strong> Lesch-Nyhan syndrome.</p>
+                    <p><strong>Basis:</strong> The triad of hyperuricemia (gouty arthritis, renal calculi), neurological dysfunction (self-mutilating behavior, aggressive behavior), and X-linked inheritance is classic for Lesch-Nyhan syndrome. The elevated serum uric acid (14.2 mg/dL) and urinary uric acid excretion (1,200 mg/24 hours) confirm hyperuricemia. Self-mutilation is a hallmark neurological feature.</p>`
+                },
+                {
+                    label: `b)`,
+                    text: `Which enzyme is defective and what is the metabolic defect in this condition? (1 mark)`,
+                    answer: `<h4>Model Answer</h4>
+                    <p><strong>Defective enzyme:</strong> Hypoxanthine-guanine phosphoribosyltransferase (HGPRTase).</p>
+                    <p><strong>Metabolic defect:</strong> HGPRTase is responsible for the salvage of hypoxanthine and guanine to IMP and GMP, respectively, using PRPP (phosphoribosyl pyrophosphate). Deficiency of HGPRTase impairs the purine salvage pathway, leading to increased degradation of purines to uric acid. Additionally, the accumulation of PRPP stimulates de novo purine synthesis, further increasing uric acid production.</p>`
+                },
+                {
+                    label: `c)`,
+                    text: `Explain biochemically why there is an overproduction of uric acid in this condition. (1 mark)`,
+                    answer: `<h4>Model Answer</h4>
+                    <p>Overproduction of uric acid occurs due to two mechanisms: (1) Impaired purine salvage: Without HGPRTase, hypoxanthine and guanine cannot be recycled to IMP and GMP. Instead, they are degraded to uric acid. (2) Increased de novo purine synthesis: The accumulation of PRPP (because it is not used for salvage) stimulates the rate-limiting enzyme of de novo purine synthesis, glutamine-PRPP amidotransferase, leading to increased purine production and consequently increased uric acid formation. The combination of increased production and decreased salvage leads to hyperuricemia and hyperuricosuria.</p>`
+                },
+                {
+                    label: `d)`,
+                    text: `What is the biochemical basis for the reported neurological and behavioral abnormalities in this case? (1 mark)`,
+                    answer: `<h4>Model Answer</h4>
+                    <p>The neurological and behavioral abnormalities in Lesch-Nyhan syndrome are thought to result from a deficiency of purine salvage in the brain, particularly in the basal ganglia. Without HGPRTase, the brain cannot recycle purines, leading to impaired synthesis of nucleotides and energy metabolism in dopaminergic neurons. Additionally, accumulation of uric acid and other metabolites may be neurotoxic. The exact mechanism is not fully understood, but it involves dopaminergic dysfunction, leading to self-mutilation, aggression, and motor abnormalities.</p>`
+                },
+                {
+                    label: `e)`,
+                    text: `Explain briefly why this condition is occurring almost exclusively in males. (1 mark)`,
+                    answer: `<h4>Model Answer</h4>
+                    <p>Lesch-Nyhan syndrome is an X-linked recessive disorder. The HGPRT gene is located on the X chromosome. Males have only one X chromosome, so a single mutated copy causes the disease. Females have two X chromosomes; a mutation in one copy is usually compensated by the normal allele on the other X chromosome, making them carriers. Thus, the condition occurs almost exclusively in males.</p>`
+                }
+            ]
+        },
+        {
+            scenario: `People with severe combined immunodeficiency (SCID) lack virtually immune protections from bacteria, viruses, and fungi. They are prone to repeated and persistent infections that can be very serious or life-threatening. These infections are often caused by "opportunistic" organisms that ordinarily do not cause illness in people with a normal immune system. Affected children also grow much more slowly than healthy children and some have developmental delay.`,
+            subquestions: [
+                {
+                    label: `a)`,
+                    text: `Which enzyme deficiency causes SCID and what is metabolic defect in this condition? (1 mark)`,
+                    answer: `<h4>Model Answer</h4>
+                    <p><strong>Enzyme deficiency:</strong> Adenosine deaminase (ADA) deficiency.</p>
+                    <p><strong>Metabolic defect:</strong> ADA catalyzes the irreversible deamination of adenosine and deoxyadenosine to inosine and deoxyinosine, respectively. Deficiency of ADA leads to accumulation of adenosine and deoxyadenosine. Deoxyadenosine is phosphorylated to dATP, which inhibits ribonucleotide reductase, blocking DNA synthesis and cell division. This is particularly toxic to lymphocytes, leading to severe combined immunodeficiency (SCID).</p>`
+                },
+                {
+                    label: `b)`,
+                    text: `Which tissue(s) in the body has (have) increased activity of this enzyme? Why? (1 mark)`,
+                    answer: `<h4>Model Answer</h4>
+                    <p><strong>Tissues with high ADA activity:</strong> Lymphoid tissues (thymus, spleen, lymph nodes) and the gastrointestinal tract.</p>
+                    <p><strong>Why:</strong> ADA is highly expressed in lymphocytes because these cells undergo rapid proliferation and require efficient purine salvage and metabolism. The high activity of ADA in lymphoid tissues helps maintain low levels of deoxyadenosine, preventing the toxic accumulation of dATP. In ADA deficiency, the lack of enzyme activity in these tissues leads to lymphocyte toxicity and immunodeficiency.</p>`
+                },
+                {
+                    label: `c)`,
+                    text: `Which metabolites are usually accumulated in this condition and which enzyme would be inhibited by these metabolites? (1 mark)`,
+                    answer: `<h4>Model Answer</h4>
+                    <p><strong>Accumulated metabolites:</strong> Adenosine, deoxyadenosine, and dATP (deoxyadenosine triphosphate).</p>
+                    <p><strong>Inhibited enzyme:</strong> dATP inhibits ribonucleotide reductase, the enzyme that converts ribonucleotides to deoxyribonucleotides. This inhibition blocks DNA synthesis and cell division, leading to lymphocyte depletion and immunodeficiency.</p>`
+                },
+                {
+                    label: `d)`,
+                    text: `Explain biochemically why there is a lack of immune protection in this condition. (1 mark)`,
+                    answer: `<h4>Model Answer</h4>
+                    <p>Lack of immune protection occurs because the accumulation of dATP in lymphocytes inhibits ribonucleotide reductase, blocking DNA synthesis and preventing lymphocyte proliferation. Both T cells and B cells are affected, leading to severe combined immunodeficiency. Without functional T and B cells, the body cannot mount an effective immune response against bacteria, viruses, and fungi, resulting in recurrent and life-threatening infections.</p>`
+                },
+                {
+                    label: `e)`,
+                    text: `Explain biochemically the basis for the developmental delay in this condition. (1 mark)`,
+                    answer: `<h4>Model Answer</h4>
+                    <p>Developmental delay in SCID is likely due to chronic infections and malnutrition, which impair growth and development. Additionally, the accumulation of toxic metabolites (dATP) may affect non-lymphoid tissues, including the brain, although the exact mechanism is unclear. The lack of immune protection leads to repeated infections that can damage organs and impair overall growth and development. Early treatment (bone marrow transplant or enzyme replacement) can prevent or reverse developmental delay.</p>`
+                }
+            ]
+        },
+        {
+        scenario: `A 12-year-old Scottish-American girl presents with deeply pigmented and scarred skin and her growth is delayed. Her dermatologist obtains a skin biopsy, suspecting the xeroderma pigmentosum group of diseases; these have decreased ability to repair pyrimidine dimers in DNA.`,
+        subquestions: [
+            {
+                label: `a)`,
+                text: `What are the different types of pyrimidine dimers in DNA and what is the most likely cause of pyrimidine dimers in DNA? (1 mark)`,
+                answer: `<h4>Model Answer</h4>
+                <p><strong>Types of pyrimidine dimers:</strong> The two major types are <strong>cyclobutane pyrimidine dimers (CPDs)</strong> and <strong>6-4 photoproducts (6-4 PPs)</strong>. CPDs form between adjacent thymine or cytosine bases, while 6-4 PPs form between a 5' pyrimidine and a 3' pyrimidine.</p>
+                <p><strong>Most likely cause:</strong> Ultraviolet (UV) radiation from sunlight, specifically 200 to 400 nm. UV radiation induces covalent bonds between adjacent pyrimidine bases, creating dimers that distort the DNA helix and block replication and transcription.</p>`
+            },
+            {
+                label: `b)`,
+                text: `Which repair mechanism is likely defective and what are the cancer susceptibilities for this condition? (1 mark)`,
+                answer: `<h4>Model Answer</h4>
+                <p><strong>Defective repair mechanism:</strong> Nucleotide excision repair (NER).</p>
+                <p>NER is responsible for removing bulky DNA lesions, including pyrimidine dimers. In xeroderma pigmentosum, mutations in NER genes (e.g., XPA, XPB, XPC, XPD, etc.) impair the removal of UV-induced dimers, leading to accumulation of mutations.</p>
+                <p><strong>Cancer susceptibilities:</strong> Patients have a dramatically increased risk of skin cancers, including <strong>basal cell carcinoma, squamous cell carcinoma, and melanoma</strong>. They also have an increased risk of other cancers such as lung cancer and oral cavity cancers due to defective DNA repair.</p>`
+            },
+            {
+                label: `c)`,
+                text: `Which enzyme is used to make a cut within DNA on each side of the lesion and which enzyme is used to remove the entire fragment of the damaged portion during this repair mechanism? (1 mark)`,
+                answer: `<h4>Model Answer</h4>
+                <p><strong>Enzyme that makes cuts on each side of the lesion:</strong> <strong>Endonuclease</strong> (specifically, an excision endonuclease). In nucleotide excision repair, the damage is recognized, and an endonuclease cuts the DNA backbone on both sides of the lesion.</p>
+                <p><strong>Enzyme that removes the damaged fragment:</strong> <strong>Exonuclease</strong> (or the same excision endonuclease complex). After the cuts are made, the damaged oligonucleotide fragment is removed by an exonuclease or by the helicase activity of the repair complex (e.g., TFIIH).</p>`
+            },
+            {
+                label: `d)`,
+                text: `Which enzyme is used to fill the gap in DNA and which enzyme seals the nick after the gap filling during this repair mechanism? (1 mark)`,
+                answer: `<h4>Model Answer</h4>
+                <p><strong>Enzyme that fills the gap:</strong> <strong>DNA polymerase</strong> (specifically DNA polymerase δ or ε in eukaryotes). It synthesizes new DNA using the undamaged strand as a template, filling the gap left after excision.</p>
+                <p><strong>Enzyme that seals the nick:</strong> <strong>DNA ligase</strong>. It catalyzes the formation of a phosphodiester bond between the 3'-OH end of the newly synthesized DNA and the 5'-phosphate end of the adjacent DNA segment, sealing the nick.</p>`
+            },
+            {
+                label: `e)`,
+                text: `Why is there no repair mechanism for RNAs and proteins but there are many for DNA only? (1 mark)`,
+                answer: `<h4>Model Answer</h4>
+                <p>DNA is the permanent, long-term storage of genetic information. Damage to DNA can lead to mutations that are passed on to daughter cells and future generations, potentially causing cancer or genetic diseases. Therefore, cells have evolved multiple robust DNA repair mechanisms to maintain genomic integrity.</p>
+                <p>In contrast, RNA and proteins are transient molecules. They are constantly synthesized and degraded (turned over). If an RNA or protein molecule is damaged, it can simply be degraded and replaced by a newly synthesized copy from the intact DNA template. Thus, there is no need for elaborate repair systems for RNA and proteins; they are disposable and renewable.</p>`
+            }
+        ]
+    },
+    {
+        scenario: `Applications of genetic engineering techniques can help doctors to evaluate your DNA to check for genetic markers related to specific medical conditions. Your personalized genetic profile could be kept on record and referred to in order to develop personal medical treatment based on your unique DNA sequencing.`,
+        subquestions: [
+            {
+                label: `a)`,
+                text: `Which technique can be used to locate the genes in chromosomes? (0.5 mark)`,
+                answer: `<h4>Model Answer</h4>
+                <p><strong>Fluorescence In Situ Hybridization (FISH)</strong> is a technique used to locate specific genes or DNA sequences on chromosomes. It uses fluorescently labeled DNA probes that hybridize to complementary target sequences on metaphase chromosomes or interphase nuclei. The location of the fluorescent signal indicates the position of the gene on the chromosome.</p>`
+            },
+            {
+                label: `b)`,
+                text: `Which technique can be used to identify the mutations in DNA for the diagnosis of genetic disorders? (0.5 mark)`,
+                answer: `<h4>Model Answer</h4>
+                <p><strong>Polymerase Chain Reaction (PCR)</strong> followed by <strong>DNA sequencing</strong> is the most common technique for identifying mutations in DNA. PCR amplifies the specific gene or region of interest, and then sequencing (e.g., Sanger sequencing or next-generation sequencing) determines the exact nucleotide sequence, allowing detection of mutations. Other techniques include restriction fragment length polymorphism (RFLP) analysis and allele-specific oligonucleotide (ASO) hybridization.</p>`
+            },
+            {
+                label: `c)`,
+                text: `DNA can be amplified in the lab using polymerase chain reaction (PCR). What are the three main steps of PCR and the required conditions for these steps? (1 mark)`,
+                answer: `<h4>Model Answer</h4>
+                <p><strong>Three main steps of PCR:</strong></p>
+                <ol>
+                    <li><strong>Denaturation:</strong> The double-stranded DNA template is heated to approximately 94-98°C to separate the strands into single-stranded DNA.</li>
+                    <li><strong>Annealing:</strong> The temperature is lowered to approximately 50-65°C to allow primers (short, single-stranded DNA sequences complementary to the target region) to bind (anneal) to the single-stranded template.</li>
+                    <li><strong>Extension/Elongation:</strong> The temperature is raised to approximately 72°C, the optimal temperature for Taq polymerase, which synthesizes new DNA strands by adding nucleotides complementary to the template, starting from the primers.</li>
+                </ol>
+                <p><strong>Required conditions:</strong> DNA template, forward and reverse primers, Taq DNA polymerase (thermostable), deoxynucleoside triphosphates (dNTPs), reaction buffer (with Mg<sup>2+</sup>), and a thermocycler for temperature cycling.</p>`
+            },
+            {
+                label: `d)`,
+                text: `DNA can be fragmented in the lab using restriction enzymes. Describe briefly the two types of restriction enzymes that produces different ends (sticky end and blunt ends). (1 mark)`,
+                answer: `<h4>Model Answer</h4>
+                <p><strong>Sticky ends:</strong> Some restriction enzymes cut DNA in a staggered manner, producing short, single-stranded overhangs called "sticky ends." For example, EcoRI cuts between G and A on both strands, leaving a 5'-AATT overhang. These overhangs are complementary and can base-pair with each other, facilitating ligation of DNA fragments.</p>
+                <p><strong>Blunt ends:</strong> Other restriction enzymes cut straight across both strands of the DNA helix, producing "blunt ends" with no overhangs. For example, SmaI cuts between C and C on both strands, leaving a flat end. Blunt ends can be ligated but with lower efficiency than sticky ends.</p>`
+            },
+            {
+                label: `e)`,
+                text: `DNA fragments can be separated using the gel electrophoresis. Describe briefly the principle of gel electrophoresis. (1 mark)`,
+                answer: `<h4>Model Answer</h4>
+                <p>Gel electrophoresis separates DNA fragments based on their size and charge. DNA is negatively charged due to its phosphate backbone. When placed in an electric field, DNA fragments migrate toward the positive electrode (anode). The gel matrix (agarose or polyacrylamide) acts as a molecular sieve: smaller fragments migrate faster and farther through the pores, while larger fragments migrate slower and remain closer to the wells. The separated fragments can be visualized using fluorescent dyes (e.g., ethidium bromide) under UV light.</p>`
+            },
+            {
+                label: `f)`,
+                text: `Different types of probes are being used to identify the DNA fragments in the lab. What are the two major types of probes used for DNA in the molecular biology lab. (1 mark)`,
+                answer: `<h4>Model Answer</h4>
+                <p><strong>Two major types of DNA probes:</strong></p>
+                <ol>
+                    <li><strong>Radioactive probes:</strong> DNA fragments labeled with radioactive isotopes (e.g., <sup>32</sup>P, <sup>35</sup>S) that emit radiation, detected by autoradiography.</li>
+                    <li><strong>Non-radioactive probes:</strong> DNA fragments labeled with haptens (e.g., biotin, digoxigenin) or fluorescent dyes, detected by colorimetric, chemiluminescent, or fluorescent methods.</li>
+                </ol>
+                <p>Both types are used in Southern blotting, FISH, and other hybridization techniques to identify specific DNA sequences.</p>`
+            }
+        ]
+    },
+    {
+        scenario: `A 2-year-old child presents with lethargy, vomiting, and a history of unexplained comas following mild illnesses that involved reduced caloric intake. Genetic testing confirms Medium-Chain Acyl-CoA Dehydrogenase (MCAD) deficiency. Urine organic acid analysis shows elevated levels of medium-chain acyl-carnitines and dicarboxylic acids.`,
+        subquestions: [
+            {
+                label: `a)`,
+                text: `What is the specific biochemical step in β-oxidation catalyzed by MCAD? (2 Marks)`,
+                answer: `<h4>Model Answer</h4>
+                <p>MCAD (medium-chain acyl-CoA dehydrogenase) catalyzes the <strong>first step of β-oxidation</strong> for medium-chain fatty acyl-CoA esters (C4-C12). Specifically, it introduces a double bond between the α and β carbons of the acyl-CoA, forming a trans-Δ<sup>2</sup>-enoyl-CoA. This is an oxidation-reduction reaction that uses FAD as the electron acceptor, producing FADH<sub>2</sub>.</p>
+                <p><strong>Reaction:</strong> Medium-chain acyl-CoA + FAD → trans-Δ<sup>2</sup>-enoyl-CoA + FADH<sub>2</sub></p>`
+            },
+            {
+                label: `b)`,
+                text: `What is the resulting electron acceptor molecule produced? (1 Mark)`,
+                answer: `<h4>Model Answer</h4>
+                <p>The resulting electron acceptor molecule produced is <strong>FADH<sub>2</sub></strong> (reduced flavin adenine dinucleotide). FAD is reduced to FADH<sub>2</sub> when it accepts electrons from the acyl-CoA substrate. FADH<sub>2</sub> then transfers electrons to the electron transport chain (Complex II) to generate ATP.</p>`
+            },
+            {
+                label: `c)`,
+                text: `Explain why the buildup of dicarboxylic acids is a hallmark of this disorder. (2 Marks)`,
+                answer: `<h4>Model Answer</h4>
+                <p>In MCAD deficiency, medium-chain fatty acids cannot undergo β-oxidation in the mitochondria. As a result, these fatty acids accumulate and are shunted into an alternative pathway: <strong>ω-oxidation</strong> in the endoplasmic reticulum. ω-Oxidation converts the terminal methyl group of fatty acids to a carboxyl group, producing dicarboxylic acids. These dicarboxylic acids are then excreted in the urine. The accumulation of medium-chain dicarboxylic acids (e.g., adipic, suberic, sebacic acids) is a characteristic hallmark of MCAD deficiency. Additionally, the inability to oxidize fatty acids leads to decreased ketone production (hypoketotic hypoglycemia) during fasting.</p>`
+            }
+        ]
+    },
+    {
+        scenario: `A 9-month-old infant is admitted to the emergency room with severe hypoglycemia (low blood sugar) and signs of liver dysfunction following a prolonged overnight fast. Blood and urine tests show very low ketone body levels and elevated levels of free fatty acids. A possible diagnosis of Primary Carnitine Deficiency is suspected.`,
+        subquestions: [
+            {
+                label: `a)`,
+                text: `Explain the essential biochemical role of carnitine in fatty acid β-oxidation. (3 Marks)`,
+                answer: `<h4>Model Answer</h4>
+                <p>Carnitine is essential for the transport of long-chain fatty acids from the cytosol into the mitochondrial matrix for β-oxidation. The process involves the carnitine shuttle:</p>
+                <ol>
+                    <li><strong>Formation of acylcarnitine:</strong> In the cytosol, long-chain fatty acyl-CoA is converted to acylcarnitine by <strong>carnitine palmitoyltransferase I (CPT-I)</strong> on the outer mitochondrial membrane. This transfers the acyl group from CoA to carnitine.</li>
+                    <li><strong>Translocation:</strong> Acylcarnitine is transported across the inner mitochondrial membrane by <strong>carnitine-acylcarnitine translocase (CACT)</strong>.</li>
+                    <li><strong>Reconversion to acyl-CoA:</strong> Inside the matrix, <strong>carnitine palmitoyltransferase II (CPT-II)</strong> converts acylcarnitine back to acyl-CoA and carnitine. The acyl-CoA is now available for β-oxidation.</li>
+                </ol>
+                <p>Without carnitine, long-chain fatty acids cannot enter the mitochondria and cannot be oxidized for energy, especially during fasting.</p>`
+            },
+            {
+                label: `b)`,
+                text: `Why does its deficiency lead to the specific presentation of hypoketotic hypoglycemia during fasting? (2 Marks)`,
+                answer: `<h4>Model Answer</h4>
+                <p>During fasting, the body relies on fatty acid oxidation and ketogenesis to provide energy. In primary carnitine deficiency, long-chain fatty acids cannot enter the mitochondria for β-oxidation. Consequently:</p>
+                <ul>
+                    <li><strong>Hypoketosis:</strong> Acetyl-CoA is not produced from fatty acid oxidation, so the liver cannot synthesize ketone bodies (acetoacetate and β-hydroxybutyrate). Blood ketone levels are low (hypoketotic).</li>
+                    <li><strong>Hypoglycemia:</strong> Without fatty acid oxidation, the liver's ATP production decreases, impairing gluconeogenesis (which requires ATP). Additionally, reduced acetyl-CoA decreases activation of pyruvate carboxylase. The combination leads to severe fasting hypoglycemia.</li>
+                </ul>
+                <p>This combination of low blood glucose and low ketones is called hypoketotic hypoglycemia, a classic presentation of fatty acid oxidation disorders.</p>`
+            }
+        ]
+    },
+    {
+        scenario: `A 35-year-old woman became severely depressed after the sudden death of her husband. Two months later, she was taken to the emergency room at Ndola Teaching Hospital (NTH) by her friend because of extreme weakness and lethargy. She appeared thin and pale. History taking revealed that she had not eaten for several weeks. Analysis of the plasma sample indicated elevated levels of alanine, acetoacetate, beta-hydroxybutyrate, and Blood Urea Nitrogen (BUN). However, her plasma glucose concentration was low (55 mg/dL).`,
+        subquestions: [
+            {
+                label: `a)`,
+                text: `List three (3) metabolic pathways that were predominant during the time the patient was not eating. (3 Marks)`,
+                answer: `<h4>Model Answer</h4>
+                <ol>
+                    <li><strong>Lipolysis:</strong> Breakdown of triglycerides in adipose tissue to release free fatty acids and glycerol.</li>
+                    <li><strong>β-Oxidation:</strong> Oxidation of free fatty acids in the liver to produce acetyl-CoA, NADH, and FADH<sub>2</sub>.</li>
+                    <li><strong>Ketogenesis:</strong> Conversion of acetyl-CoA to ketone bodies (acetoacetate, β-hydroxybutyrate) in the liver.</li>
+                    <li><strong>Gluconeogenesis:</strong> Synthesis of glucose from non-carbohydrate precursors (amino acids, glycerol, lactate) in the liver and kidneys.</li>
+                    <li><strong>Proteolysis:</strong> Breakdown of muscle proteins to release amino acids (e.g., alanine) for gluconeogenesis.</li>
+                </ol>
+                <p>(Any three of the above are correct.)</p>`
+            },
+            {
+                label: `b)`,
+                text: `What is the source of alanine that was seen to be elevated in the patient's plasma? (2 Marks)`,
+                answer: `<h4>Model Answer</h4>
+                <p>The elevated alanine in plasma comes from <strong>muscle protein breakdown (proteolysis)</strong>. During prolonged fasting, skeletal muscle degrades its proteins to release amino acids. Alanine is synthesized in muscle from pyruvate (via transamination) and is released into the bloodstream. The liver takes up alanine and uses it for gluconeogenesis via the glucose-alanine cycle. Thus, the source of alanine is muscle protein catabolism.</p>`
+            },
+            {
+                label: `c)`,
+                text: `Explain BRIEFLY why there are elevated levels of acetoacetate and Beta-hydroxybutyrate (3 Marks)`,
+                answer: `<h4>Model Answer</h4>
+                <p>During prolonged fasting, low insulin and high glucagon levels stimulate lipolysis in adipose tissue, releasing free fatty acids into the bloodstream. The liver takes up these fatty acids and oxidizes them via β-oxidation to acetyl-CoA. When the rate of acetyl-CoA production exceeds the capacity of the TCA cycle, acetyl-CoA is shunted into ketogenesis. The enzymes HMG-CoA synthase and HMG-CoA lyase convert acetyl-CoA to acetoacetate, which is then reduced to β-hydroxybutyrate by β-hydroxybutyrate dehydrogenase. These ketone bodies accumulate in the blood and are used by extrahepatic tissues (brain, muscle) as alternative fuel. Elevated levels are a normal adaptive response to starvation.</p>`
+            },
+            {
+                label: `d)`,
+                text: `What can you deduce from the elevated BUN, and why is there an elevation? (2 Marks)`,
+                answer: `<h4>Model Answer</h4>
+                <p>Elevated Blood Urea Nitrogen (BUN) indicates increased protein catabolism. During prolonged fasting, the body breaks down muscle proteins to provide amino acids for gluconeogenesis. The amino groups from these amino acids are converted to ammonia (via deamination) and then to urea in the liver (urea cycle). The increased urea production leads to elevated BUN. Additionally, dehydration (common in starvation) may concentrate the blood and further increase BUN. The elevated BUN reflects the body's reliance on protein breakdown for energy and glucose production.</p>`
+            }
+        ]
+    }
+    ];
+
+    /* =====================================================================
+       RENDERING FUNCTIONS
+       ===================================================================== */
+    function renderSectionA() {
+        const container = document.getElementById('container-A');
+        let html = '';
+        sectionA.forEach((q, i) => {
+            const qid = 'A-q' + (i + 1);
+            html += '<div class="question" id="q-' + qid + '">';
+            html += '<p><span class="q-badge">Q' + (i + 1) + '</span> ' + q.q + '</p>';
+            html += '<div class="options">';
+            q.options.forEach((opt, j) => {
+                const L = String.fromCharCode(65 + j);
+                html += '<label><input type="radio" name="' + qid + '" value="' + L + '"> <strong>' + L + ')</strong> ' + opt + '</label>';
+            });
+            html += '</div>';
+            html += '<div class="question-feedback" id="fb-' + qid + '"></div>';
+            html += '</div>';
+        });
+        container.innerHTML = html;
+        document.getElementById('count-A').textContent = sectionA.length;
+    }
+
+    function submitSectionA() {
+        let score = 0;
+        sectionA.forEach((q, i) => {
+            const qid = 'A-q' + (i + 1);
+            const radios = document.getElementsByName(qid);
+            let selected = null;
+            for (let r = 0; r < radios.length; r++) {
+                if (radios[r].checked) { selected = radios[r]; break; }
+            }
+            const correct = q.correct.toUpperCase();
+            if (selected && selected.value === correct) score++;
+
+            let html = '<div class="answer-block"><div class="answer-list">';
+            q.options.forEach((opt, j) => {
+                const L = String.fromCharCode(65 + j);
+                let cls = 'answer-item';
+                if (L === correct) cls += ' answer-correct';
+                if (selected && selected.value === L) {
+                    cls += ' user-choice';
+                    if (L !== correct) cls += ' answer-wrong';
+                }
+                const mark = (selected && selected.value === L) ? ' ◀ your answer' : '';
+                html += '<div class="' + cls + '">' + L + ') ' + opt + mark + '</div>';
+            });
+            html += '</div>';
+
+            const correctIdx = correct.charCodeAt(0) - 65;
+            const correctText = (correctIdx >= 0 && correctIdx < q.options.length) ? q.options[correctIdx] : '';
+
+            if (!selected) {
+                html += '<div class="explanation wrong">No answer selected. Correct answer: <strong>' +
+                        correct + ') ' + correctText + '</strong>.<br>' + q.explanation + '</div>';
+            } else if (selected.value === correct) {
+                html += '<div class="explanation">✅ <strong>Correct.</strong><br>' + q.explanation + '</div>';
+            } else {
+                html += '<div class="explanation wrong">❌ <strong>Incorrect.</strong> Correct answer: <strong>' +
+                        correct + ') ' + correctText + '</strong>.<br>' + q.explanation + '</div>';
+            }
+
+            const fb = document.getElementById('fb-' + qid);
+            if (fb) fb.innerHTML = html;
+        });
+
+        const total = sectionA.length;
+        const pct = Math.round((score / total) * 100);
+        const box = document.getElementById('result-A');
+        box.style.display = 'block';
+        document.getElementById('score-A').innerText = score + ' / ' + total + '  (' + pct + '%)';
+
+        document.querySelectorAll('#panel-A input[type="radio"]').forEach(r => r.disabled = true);
+    }
+
+    function renderSectionB() {
+        const container = document.getElementById('container-B');
+        let html = '';
+        sectionB.forEach((scenario, i) => {
+            html += '<div class="scenario-block">';
+            html += '<div class="scenario-title">Scenario ' + (i + 1) + '</div>';
+            html += '<div class="scenario-text">' + scenario.scenario.replace(/\n/g, '<br>') + '</div>';
+            scenario.subquestions.forEach((sq, j) => {
+                const sqid = 'B-sc' + (i + 1) + '-sq' + (j + 1);
+                html += '<div class="sub-question">';
+                html += '<div class="sq-label">' + sq.label + '</div>';
+                html += '<div class="sq-text">' + sq.text + '</div>';
+                html += '<button type="button" class="btn btn-sm" onclick="toggleAnswer(\'' + sqid + '\')"><i class="fas fa-eye"></i> Show Answer</button>';
+                html += '<div class="essay-answer" id="ans-' + sqid + '">' + sq.answer + '</div>';
+                html += '</div>';
+            });
+            html += '</div>';
+        });
+        container.innerHTML = html;
+        document.getElementById('count-B').textContent = sectionB.length + ' Scenarios';
+    }
+
+    function toggleAnswer(qid) {
+        const el = document.getElementById('ans-' + qid);
+        if (el) el.classList.toggle('show');
+    }
+
+    /* ─── INIT ─── */
+    renderSectionA();
+    renderSectionB();
+
+    /* ─── TAB SWITCHING ─── */
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            const target = this.dataset.target;
+            document.querySelectorAll('.tab-panel').forEach(p => p.classList.add('hidden'));
+            document.getElementById('panel-' + target).classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    });
+    </script>
+
+</body>
+</html>
